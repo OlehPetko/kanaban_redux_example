@@ -42,6 +42,20 @@ const tasks = (state = initialState, action) => {
             ...state, cards: [...state.cards,
         {id: Math.random(), name: action.payload, status: 'todo', moveCard: true, openCardDelete: true, openCardUpdate: true}]
         }
+        case 'OPEN_DELETE_CARD': return {
+            ...state, cards: state.cards.map(el => el.id === action.payload ? {...el, openCardDelete: !el.openCardDelete} : el)
+        }
+        case 'DELETE_CARD': return {
+            ...state, cards: state.cards.filter(el => el.id !== action.payload)
+        }
+        case 'OPEN_UPDATE_CARD': return {
+            ...state, cards: state.cards.map(el => el.id === action.payload ? {...el, openCardUpdate: !el.openCardUpdate } : el)
+        }
+        case 'SAVE_CARD': return {
+            ...state, cards: state.cards.map(el => el.id === action.payload.cardId ? {
+                ...el, openCardUpdate: !el.openCardUpdate, name: action.payload.updateCard
+            } : el)
+        }
         default:
             return state
 

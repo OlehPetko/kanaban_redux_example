@@ -4,9 +4,15 @@ import {useState} from "react";
 function Kanban(props) {
     const {columns, cards} = props
     const [newCard, setNewCard] = useState([])
+    const [updateCard, setUpdateCard] = useState([])
+
     const addCard = () => {
         props.addNewCard(newCard)
         setNewCard([])
+    }
+    const saveHandlerUpdateCard = (cardId) => {
+      props.saveUpdate(cardId, updateCard)
+        setUpdateCard([])
     }
     return (
         <div>
@@ -14,16 +20,32 @@ function Kanban(props) {
             <button onClick={addCard}>add new card</button>
             <h2>Kanban</h2>
             {columns.map(column =>
-            <div key={column}>
-                <h2>
-                    {column}
-                </h2>
-                {cards.filter(card => card.status === column).map(card =>
-                <div key={card.id}>
-                    {card.name}
+                <div key={column}>
+                    <h2>
+                        {column}
+                    </h2>
+                    {cards.filter(card => card.status === column).map(card =>
+                        <div key={card.id}>
+                            {card.name}
+                            {card.openCardDelete ?
+                                <button onClick={() => props.openDelete(card.id)}>delete</button>
+                                :
+                                <div>
+                                    <button onClick={() => props.deleteCard(card.id)}>are you sure, delete?</button>
+                                    <button onClick={() => props.openDelete(card.id)}>cancel</button>
+                                </div>
+                            }
+                            {card.openCardUpdate ?
+                                <button onClick={() => props.openUpdate(card.id)}>update</button>
+                            :
+                            <div>
+                                <input value={updateCard} onChange={e => setUpdateCard(e.target.value)}/>
+                                <button onClick={() => saveHandlerUpdateCard(card.id)}>save</button>
+                                <button onClick={() => props.openUpdate(card.id)}>cancel</button>
+                            </div>}
+                        </div>
+                    )}
                 </div>
-                )}
-            </div>
             )}
 
         </div>
@@ -31,12 +53,15 @@ function Kanban(props) {
 }
 
 const mapStateToProps = (state) => ({
-  columns: state.columns,
+    columns: state.columns,
     cards: state.cards
 })
 
 const mapDispatchToProps = (dispatch) => ({
-    addNewCard: (newCard) => dispatch({type: 'ADD_CARD', payload: newCard })
-
+    addNewCard: (newCard) => dispatch({type: 'ADD_CARD', payload: newCard}),
+    openDelete: (cardId) => dispatch({type: 'OPEN_DELETE_CARD', payload: cardId}),
+    deleteCard: (cardId) => dispatch({type: 'DELETE_CARD', payload: cardId}),
+    openUpdate: (cardId) => dispatch({type: 'OPEN_UPDATE_CARD', payload: cardId}),
+    saveUpdate: (cardId, updateCard) => dispatch({type: 'SAVE_CARD', payload: {cardId, updateCard}})
 })
-export default connect (mapStateToProps, mapDispatchToProps) (Kanban);
+export default connect(mapStateToProps, mapDispatchToProps)(Kanban);
