@@ -16,9 +16,9 @@ function Kanban(props) {
     }
     return (
         <div>
+            <h2>Kanban</h2>
             <input placeholder='new cards' value={newCard} onChange={e => setNewCard(e.target.value)}/>
             <button onClick={addCard}>add new card</button>
-            <h2>Kanban</h2>
             {columns.map(column =>
                 <div key={column}>
                     <h2>
@@ -26,7 +26,9 @@ function Kanban(props) {
                     </h2>
                     {cards.filter(card => card.status === column).map(card =>
                         <div key={card.id}>
+                            <button disabled={card.status === 'todo'} onClick={() => props.moveCard(card.id, - 1)}>▲</button>
                             {card.name}
+                            <button disabled={card.status === 'done'} onClick={() => props.moveCard(card.id, + 1)}>▼</button>
                             {card.openCardDelete ?
                                 <button onClick={() => props.openDelete(card.id)}>delete</button>
                                 :
@@ -62,6 +64,7 @@ const mapDispatchToProps = (dispatch) => ({
     openDelete: (cardId) => dispatch({type: 'OPEN_DELETE_CARD', payload: cardId}),
     deleteCard: (cardId) => dispatch({type: 'DELETE_CARD', payload: cardId}),
     openUpdate: (cardId) => dispatch({type: 'OPEN_UPDATE_CARD', payload: cardId}),
-    saveUpdate: (cardId, updateCard) => dispatch({type: 'SAVE_CARD', payload: {cardId, updateCard}})
+    saveUpdate: (cardId, updateCard) => dispatch({type: 'SAVE_CARD', payload: {cardId, updateCard}}),
+    moveCard: (cardId, cardValue) => dispatch({type: 'MOVE_CARD', payload: {cardId, cardValue} })
 })
 export default connect(mapStateToProps, mapDispatchToProps)(Kanban);
