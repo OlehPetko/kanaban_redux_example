@@ -1,16 +1,21 @@
 const initialState = {
     todos: [
-        {id: Math.random(), title: 'Liverpool', openTodoDelete: true, openTodoUpdate: true,},
-        {id: Math.random(), title: 'Toronto', openTodoDelete: true, openTodoUpdate: true},
-        {id: Math.random(), title: 'Vancouver', openTodoDelete: true, openTodoUpdate: true},
-        {id: Math.random(), title: 'Cancun', openTodoDelete: true, openTodoUpdate: true},
+        {id: Math.random(), title: 'Liverpool', openTodoDelete: true, openTodoUpdate: true, done: false},
+        {id: Math.random(), title: 'Toronto', openTodoDelete: true, openTodoUpdate: true, done: true},
+        {id: Math.random(), title: 'Vancouver', openTodoDelete: true, openTodoUpdate: true, done: true},
+        {id: Math.random(), title: 'Cancun', openTodoDelete: true, openTodoUpdate: true, done: true},
     ],
     columns: ['todo', 'progress', 'review', 'done'],
     cards: [
-        {id: Math.random(), name: 'React', status: 'todo', moveCard: true, openCardDelete: true, openCardUpdate: true},
-        {id: Math.random(), name: 'C_Sharp', status: 'progress', moveCard: true, openCardDelete: true, openCardUpdate: true},
-        {id: Math.random(), name: 'JavaScript', status: 'review', moveCard: true, openCardDelete: true, openCardUpdate: true},
-        {id: Math.random(), name: 'Java', status: 'done', moveCard: true, openCardDelete: true, openCardUpdate: true},
+        {id: Math.random(), name: 'React', status: 'todo', openCardDelete: true, openCardUpdate: true, doneCard: true},
+        {id: Math.random(), name: 'C_Sharp', status: 'progress', openCardDelete: true, openCardUpdate: true, doneCard: true},
+        {id: Math.random(), name: 'JavaScript', status: 'review', openCardDelete: true, openCardUpdate: true, doneCard: true},
+        {id: Math.random(), name: 'Java', status: 'done', openCardDelete: true, openCardUpdate: true, doneCard: true},
+    ],
+    counter: [
+        {id: Math.random(), valueCounter: 0},
+        {id: Math.random(), valueCounter: 1},
+        {id: Math.random(), valueCounter: 2},
     ]
 }
 const tasks = (state = initialState, action) => {
@@ -18,12 +23,11 @@ const tasks = (state = initialState, action) => {
         case 'ADD_TODO':
             return {
                 ...state,
-                todos: [...state.todos, {
-                    id: Math.random(),
-                    title: action.payload,
-                    openTodoDelete: true,
-                    openTodoUpdate: true
-                }]
+                todos: [...state.todos, {id: Math.random(), title: action.payload, openTodoDelete: true, openTodoUpdate: true, doneCard: true}]
+            }
+        case 'DELETE_ALL_TODOS':
+            return {
+                ...state, todos: []
             }
         case 'DELETE_TODO':
             return {
@@ -52,16 +56,24 @@ const tasks = (state = initialState, action) => {
                     openTodoUpdate: !el.openTodoUpdate
                 } : el)
             }
+        case 'MARK_DONE_TODO': return {
+            ...state, todos: state.todos.map(el => el.id === action.payload ?
+                {...el, done: !el.done} : el)
+        }
         case 'MOVE_TODO':
-            return {
-                ...state, todos: state.todos.map(el => el.id === action.payload.todoId ? {
-                    ...el, todos: state.title[state.title.indexOf(el.title) + action.payload.todoValue]
-                } : el)
-            }
+            const newTodos = [...state.todos]
+            const currentTodo = newTodos[action.payload.i]
+            const nextTodo = newTodos[action.payload.i + action.payload.todoValue]
+            newTodos[action.payload.i] = nextTodo
+            newTodos[action.payload.i + action.payload.todoValue] = currentTodo
+
+
+
         case 'ADD_CARD':
             return {
                 ...state, cards: [...state.cards,
-                    {id: Math.random(), name: action.payload, status: 'todo', moveCard: true, openCardDelete: true, openCardUpdate: true}]
+                    {id: Math.random(), name: action.payload, status: 'todo', openCardDelete: true, openCardUpdate: true, doneCard: true}
+                    ]
             }
         case 'OPEN_DELETE_CARD':
             return {
@@ -97,6 +109,19 @@ const tasks = (state = initialState, action) => {
                         status: state.columns[state.columns.indexOf(el.status) + action.payload.cardValue]
                     } : el)
             }
+        case 'DELETE_ALL_CARDS' :
+            return {
+                ...state, cards: []
+            }
+        case 'MARK_DONE_CARD':
+            return {
+                ...state, cards: state.cards.map(el => el.id === action.payload ? {...el, doneCard: !el.doneCard} : el)
+            }
+        case 'PLUS_MINUS': return {
+            ...state, counter: state.counter.map(el => el.id === action.payload.counterId ?
+                {...el, valueCounter: el.valueCounter + action.payload.counterValue } : el
+            )
+        }
         default:
             return state
 

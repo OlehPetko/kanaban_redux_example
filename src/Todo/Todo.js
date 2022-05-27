@@ -11,11 +11,11 @@ function Todo(props) {
         setNewTodo([])
     }
     const saveHandlerUpdate = (todoId) => {
-      props.saveUpdate(todoId, updateTodo)
+        props.saveUpdate(todoId, updateTodo)
         setUpdateTodo([])
     }
     const openHandlerWindowUpdate = (todoId) => {
-      props.openWindowUpdate(todoId)
+        props.openWindowUpdate(todoId)
         setUpdateTodo([])
     }
     return (
@@ -23,13 +23,14 @@ function Todo(props) {
             <h2>TO DO</h2>
             <input placeholder='new todo' value={newTodo} onChange={e => setNewTodo(e.target.value)}/>
             <button onClick={addTodo}>add to do</button>
-            {todos.map((todo, index) =>
+            <button onClick={() => props.deleteAllTodos()}>delete all todos</button>
+            {todos.map((todo, i) =>
                 <div key={todo.id}>
                     <h4>
-                        {index !== 0 && <button onClick={() => props.moveTodo(index, - 1)}>▲</button> }
+                        <input type="checkbox" onClick={() => props.markDoneTodo(todo.id)}/>
+                        {i !== 0 && <button onClick={() => props.moveTodo(i, -1)}>▲</button>}
                         {todo.title}
-                        {index !== todos.length - 1 && <button onClick={() => props.moveTodo(index, + 1)}>▼</button> }
-                        <button>task is ready</button>
+                        {i !== todos.length - 1 && <button onClick={() => props.moveTodo(i, +1)}>▼</button>}
                         {todo.openTodoDelete ?
                             <button onClick={() => props.openWindowDelete(todo.id)}>delete</button>
                             :
@@ -40,7 +41,7 @@ function Todo(props) {
                         }
                         {todo.openTodoUpdate ?
                             <button onClick={() => props.openWindowUpdate(todo.id)}>update</button>
-                        :
+                            :
                             <div>
                                 <input value={updateTodo} onChange={e => setUpdateTodo(e.target.value)}/>
                                 <button onClick={() => saveHandlerUpdate(todo.id)}>save</button>
@@ -55,14 +56,17 @@ function Todo(props) {
 }
 
 const mapStateToProps = (state) => ({
-    todos: state.todos
+    todos: state.todos,
+
 })
 const mapDispatchToProps = (dispatch) => ({
     addNewTodo: (newTodo) => dispatch({type: 'ADD_TODO', payload: newTodo}),
     deleteTodo: (todoId) => dispatch({type: 'DELETE_TODO', payload: todoId}),
     openWindowDelete: (todoId) => dispatch({type: 'OPEN_DELETE_TODO', payload: todoId}),
     openWindowUpdate: (todoId) => dispatch({type: 'OPEN_UPDATE_TODO', payload: todoId}),
-    saveUpdate: (todoId, updateTodo) => dispatch ({type: 'SAVE_TODO', payload: {todoId, updateTodo}}),
-    moveTodo: (index, todoValue) => dispatch({type: 'MOVE_TODO', payload: {index, todoValue}})
+    saveUpdate: (todoId, updateTodo) => dispatch({type: 'SAVE_TODO', payload: {todoId, updateTodo}}),
+    moveTodo: (i, todoValue) => dispatch({type: 'MOVE_TODO', payload: {i, todoValue}}),
+    deleteAllTodos: () => dispatch({type: 'DELETE_ALL_TODOS'}),
+    markDoneTodo: (todoId) => dispatch({type: 'MARK_DONE_TODO', payload: todoId})
 })
 export default connect(mapStateToProps, mapDispatchToProps)(Todo);
